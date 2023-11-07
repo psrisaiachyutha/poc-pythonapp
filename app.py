@@ -1,4 +1,5 @@
 # This is a sample Python script.
+from flask import jsonify
 from marshmallow import Schema
 from marshmallow.fields import Field, String, Integer
 from dotenv import load_dotenv
@@ -20,9 +21,9 @@ def execute_basic_bigquery():
         'SELECT name FROM `bigquery-public-data.usa_names.usa_1910_2013` '
         'WHERE state = "TX" '
         'LIMIT 100')
-    #query_job = client.query(QUERY)  # API request
-    #client.cancel_job(query_job.job_id, location='US')
-    #print(query_job.job_id)
+    # query_job = client.query(QUERY)  # API request
+    # client.cancel_job(query_job.job_id, location='US')
+    # print(query_job.job_id)
     query_job = client.get_job('2b97dd4a-659a-445a-a681-e26ee81bab13', location='us')
     rows = query_job.result()  # Waits for query to finish
 
@@ -32,7 +33,7 @@ def execute_basic_bigquery():
 
 def run_flask():
     from flask import Flask
-    from controllers.api1 import api1
+    from controllers.report import report
     from controllers.api2 import api2
     from controllers.serach import search
     from gevent.pywsgi import WSGIServer
@@ -41,9 +42,13 @@ def run_flask():
     app = Flask(__name__)
 
     # Register the API applications
-    app.register_blueprint(api1, url_prefix='/api1')
+    app.register_blueprint(report, url_prefix='/api/v1/report')
     app.register_blueprint(api2, url_prefix='/api2')
     app.register_blueprint(search, url_prefix='/api/v1/search')
+
+    @app.errorhandler(400)
+    def bad_request(e):
+        return jsonify(error=str(e)), 400
 
     print(app.url_map)
     app.config['BASE_RESPONSE_SCHEMA'] = BaseResponse
@@ -114,6 +119,6 @@ if __name__ == '__main__':
     # print(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
     # print(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE"))
 
-    #execute_basic_bigquery()
+    # execute_basic_bigquery()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/
