@@ -34,7 +34,6 @@ def execute_basic_bigquery():
 def run_flask():
     from flask import Flask
     from controllers.report import report
-    from controllers.api2 import api2
     from controllers.serach import search
     from gevent.pywsgi import WSGIServer
     # from flask_cors import  CORS
@@ -43,7 +42,6 @@ def run_flask():
 
     # Register the API applications
     app.register_blueprint(report, url_prefix='/api/v1/report')
-    app.register_blueprint(api2, url_prefix='/api2')
     app.register_blueprint(search, url_prefix='/api/v1/search')
 
     @app.errorhandler(400)
