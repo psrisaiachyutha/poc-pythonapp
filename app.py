@@ -34,7 +34,7 @@ def execute_basic_bigquery():
 def run_flask():
     from flask import Flask
     from controllers.report import report
-    from controllers.serach import search
+    from controllers.search import search
     from gevent.pywsgi import WSGIServer
     # from flask_cors import  CORS
 
@@ -109,6 +109,62 @@ class BaseResponse(Schema):
     message = String()
     code = Integer()
 
+def sol():
+    #arr = [1, 2,4, 2,3]
+    #arr = [2,2,1,1,1,1,1]
+    arr =[1,1,1,1]
+    from collections import Counter, defaultdict
+    from bisect import bisect_left
+    d = Counter(arr)
+    dd = defaultdict(list)
+    for key, val in d.items():
+        dd[val].append(key)
+    t = []
+    #print(d.keys())
+    for i in sorted(dd.keys()):
+        t.extend([i] * len(dd[i]))
+    # print(t)
+    # print(bisect_left(t, 1))
+    # print(bisect_left(t, 3))
+    # print(bisect_left(t, 4))
+    # print(bisect_left(t, 5))
+
+    ans = 0
+    for i in range(1, max(t)+1):
+        start = i
+        start_index = 0
+        count = 0
+        #print('for   ',i,'----')
+        while True:
+
+            val = bisect_left(t, start, lo=start_index)
+            #print(t, start, start_index, val, count)
+            if val == len(t):
+                break
+            count += start
+            if val >= len(t) -1:
+                break
+
+            start_index = val + 1
+            start *= 2
+        #print()
+        ans = max(ans, count)
+    print('ans is ',ans)
+    #   0 0 0
+    #   0 0 1
+    #   0 1 0
+    #   0 1 1
+    #   1 0 0
+    #   1 0 1
+    #   1 1 0
+    #   1 1 1
+
+
+
+
+
+    print(dd)
+    print(t)
 
 if __name__ == '__main__':
     load_dotenv()
@@ -116,7 +172,7 @@ if __name__ == '__main__':
     run_flask()
     # print(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
     # print(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE"))
-
+    #sol()
     # execute_basic_bigquery()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

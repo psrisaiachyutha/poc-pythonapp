@@ -55,7 +55,8 @@ def competitoranalysis(company: str, timelineidentifier: str):
 
     accepted_timelines = ['customer_volume', 'expenditure', 'transaction']
     if timelineidentifier not in accepted_timelines:
-        return "timeline is not accepted", 400
+        #return "timeline is not accepted", 400
+        abort(400, description="timeline is not accepted")
 
     accepted_durations = ['last-one-year', 'last-two-year']
     if duration not in accepted_durations:
@@ -115,3 +116,35 @@ def competitoranalysis(company: str, timelineidentifier: str):
     data = get_competitoranalysis_handler(params)
     result = BaseResponse(data=data, code=200)
     return jsonify(result)
+
+
+@report.route('/competitoranalysis/<company>/aggregate/<aggregateidentifier>', methods=['GET'])
+def share_of_wallet(company: str, aggregateidentifier: str):
+    duration = request.args.get('duration')
+    location = request.args.get('location')
+    demographics = request.args.get('demographics')
+    competitors = request.args.get('competitors')
+
+    # TODO validations for query params
+    if duration is None or len(duration.strip()) == 0:
+        return "duration cannot be null or empty", 400
+
+    location = parse_list_params(location, 'location')
+    demographics = parse_list_params(demographics, 'demographics')
+    competitors = parse_list_params(competitors, 'competitors')
+
+    accepted_timelines = ['cross_visit', 'expenditure', 'wallet_share']
+    if aggregateidentifier not in accepted_timelines:
+        return "timeline is not accepted", 400
+
+    accepted_durations = ['last-one-year', 'last-two-year']
+    if duration not in accepted_durations:
+        return "duration is not valid", 400
+
+    if duration == 'last-one-year':
+        min_required_date = datetime.now() - timedelta(365)
+    else:
+        min_required_date = datetime.now() - timedelta(365 * 2)
+
+
+
