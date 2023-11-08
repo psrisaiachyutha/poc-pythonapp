@@ -1,7 +1,9 @@
 flask
 gevent
 marshmallow
-object-mapper
 google-cloud-bigquery
 python-dotenv
 pytest
+pika
+pandas
+db-dtypes

@@ -1,15 +1,16 @@
 # This is a sample Python script.
+from threading import Thread
+
 from flask import jsonify
 from marshmallow import Schema
 from marshmallow.fields import Field, String, Integer
 from dotenv import load_dotenv
 import os  # provides ways to access the Operating System and allows us to read the environment variables
 
+from utils.rabbitmq import start_rabbitmq_consumer
+
 
 # load_dotenv()
-
-# Press Shift+F10 to execute it or replace it with your code.
-# Press Double Shift to search everywhere for classes, files, tool windows, actions, and settings.
 
 def execute_basic_bigquery():
     from google.cloud import bigquery
@@ -109,70 +110,23 @@ class BaseResponse(Schema):
     message = String()
     code = Integer()
 
-def sol():
-    #arr = [1, 2,4, 2,3]
-    #arr = [2,2,1,1,1,1,1]
-    arr =[1,1,1,1]
-    from collections import Counter, defaultdict
-    from bisect import bisect_left
-    d = Counter(arr)
-    dd = defaultdict(list)
-    for key, val in d.items():
-        dd[val].append(key)
-    t = []
-    #print(d.keys())
-    for i in sorted(dd.keys()):
-        t.extend([i] * len(dd[i]))
-    # print(t)
-    # print(bisect_left(t, 1))
-    # print(bisect_left(t, 3))
-    # print(bisect_left(t, 4))
-    # print(bisect_left(t, 5))
-
-    ans = 0
-    for i in range(1, max(t)+1):
-        start = i
-        start_index = 0
-        count = 0
-        #print('for   ',i,'----')
-        while True:
-
-            val = bisect_left(t, start, lo=start_index)
-            #print(t, start, start_index, val, count)
-            if val == len(t):
-                break
-            count += start
-            if val >= len(t) -1:
-                break
-
-            start_index = val + 1
-            start *= 2
-        #print()
-        ans = max(ans, count)
-    print('ans is ',ans)
-    #   0 0 0
-    #   0 0 1
-    #   0 1 0
-    #   0 1 1
-    #   1 0 0
-    #   1 0 1
-    #   1 1 0
-    #   1 1 1
 
 
-
-
-
-    print(dd)
-    print(t)
 
 if __name__ == '__main__':
     load_dotenv()
-    # create_bigquery()
+    consumer_thread = Thread(target=start_rabbitmq_consumer)
+    try:
+        print('thread is starting')
+        consumer_thread.start()
+    except Exception as e:
+        print('error message', e)
     run_flask()
+
+    # start_rabbitmq_consumer().start()
     # print(os.getenv("GOOGLE_APPLICATION_CREDENTIALS"))
     # print(os.getenv("GOOGLE_API_USE_CLIENT_CERTIFICATE"))
-    #sol()
+    # sol()
     # execute_basic_bigquery()
 
 # See PyCharm help at https://www.jetbrains.com/help/pycharm/

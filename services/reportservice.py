@@ -1,8 +1,12 @@
 import csv
+import json
 from collections import defaultdict
 from datetime import datetime
 
+from pika.exceptions import AMQPConnectionError
+
 from models.schemas.competitoranalysis import CompetitorAnalysisParams
+from utils.rabbitmq import create_rabbitmq_connection, create_channel, publish_message_to_rabbitmq, close_connection
 
 
 def datetime_to_month_and_year(date: datetime) -> str:
@@ -86,3 +90,27 @@ def get_aggregate_handler(input1: CompetitorAnalysisParams):
             'companies': companies
         }
         return data
+
+
+def generate_report_handler(input1: dict):
+    # TODO add message to rabbitmq
+    json_message = str(input1)
+    json_message = json.dumps(input1)
+
+    try:
+        connection = create_rabbitmq_connection('localhost')
+        try:
+            channel = create_channel(connection)
+            publish_message_to_rabbitmq(channel, 'my-queue', 'my-queue', json_message, '')
+        finally:
+            close_connection(connection)
+    except AMQPConnectionError:
+        print("RabbitMQ connection error. Retrying in 5 seconds...")
+        return {
+            "message": "rabbitmq connection error"
+        }
+
+    return {
+        "message": "accepted request for report generation"
+    }
+

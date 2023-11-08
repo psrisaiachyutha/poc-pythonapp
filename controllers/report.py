@@ -1,10 +1,12 @@
 from datetime import datetime, timedelta
 
 from flask import jsonify, Blueprint, request, abort
+from marshmallow import ValidationError
 
 from models.response.BaseResponse import BaseResponse
 from models.schemas.competitoranalysis import CompetitorAnalysisParams
-from services.reportservice import get_competitoranalysis_handler
+from models.schemas.generatereport import GenerateReportRequestValidator
+from services.reportservice import get_competitoranalysis_handler, generate_report_handler
 
 report = Blueprint('report', __name__)
 
@@ -88,5 +90,18 @@ def share_of_wallet(company: str, aggregateidentifier: str):
     else:
         min_required_date = datetime.now() - timedelta(365 * 2)
 
+@report.route('/', methods=['POST'])
+def generate_report():
+    request_body_json = request.get_json()
+    request_validator = GenerateReportRequestValidator()
+    try:
+        # Validate request body against schema data types
+        validated_request_body_json = request_validator.load(request_body_json)
+    except ValidationError as err:
+        # Return a nice message if validation fails
+        return jsonify(err.messages), 400
 
+    #print(validated_request_body_json)
 
+    result = generate_report_handler(validated_request_body_json)
+    return jsonify(result), 201
