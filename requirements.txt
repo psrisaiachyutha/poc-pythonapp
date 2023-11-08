@@ -4,3 +4,4 @@ marshmallow
 object-mapper
 google-cloud-bigquery
 python-dotenv
+pytest

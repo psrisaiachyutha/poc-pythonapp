@@ -30,32 +30,12 @@ def competitoranalysis(company: str, timelineidentifier: str):
     if duration is None or len(duration.strip()) == 0:
         return "duration cannot be null or empty", 400
 
-    # if location is None:
-    #     return "location cannot be null", 400
-    # if len(location.strip()) == 0:
-    #     return "location cannot be empty string", 400
-    #
-    # if demographics is None:
-    #     return "demographics cannot be null", 400
-    # if len(demographics.strip()) == 0:
-    #     return "demographics cannot be empty string", 400
-    #
-    # if competitors is None:
-    #     return "competitors cannot be null", 400
-    # if len(competitors.strip()) == 0:
-    #     return "competitors cannot be empty string", 400
-
-    # location = location.split(',')
-    # demographics = demographics.split(',')
-    # competitors = competitors.split(',')
-    # print(location)
     location = parse_list_params(location, 'location')
     demographics = parse_list_params(demographics, 'demographics')
     competitors = parse_list_params(competitors, 'competitors')
 
     accepted_timelines = ['customer_volume', 'expenditure', 'transaction']
     if timelineidentifier not in accepted_timelines:
-        #return "timeline is not accepted", 400
         abort(400, description="timeline is not accepted")
 
     accepted_durations = ['last-one-year', 'last-two-year']
@@ -67,44 +47,6 @@ def competitoranalysis(company: str, timelineidentifier: str):
     else:
         min_required_date = datetime.now() - timedelta(365 * 2)
 
-    # required_column = ''
-    # if timelineidentifier == 'expenditure':
-    #     required_column = 'Spend'
-    # elif timelineidentifier == 'transaction':
-    #     required_column = 'Transactions'
-    # elif timelineidentifier == 'customer_volume':
-    #     required_column = 'Shoppers'
-
-    # import csv
-    # from collections import defaultdict
-    # file_path = 'env/sample.csv'
-    # data = None
-    # with open(file_path, mode='r') as file:
-    #     # reading the CSV file
-    #     csv_file = csv.DictReader(file)
-    #     filtered_data = defaultdict(dict)
-    #     # displaying the contents of the CSV file
-    #     for lines in csv_file:
-    #         # print(lines)
-    #         try:
-    #             # print(datetime.strptime(lines['Month'], "%d/%m/%Y"))
-    #             month = datetime.strptime(lines['Month'], "%m/%d/%Y")
-    #             if not lines['Month'].startswith('#') and month >= min_required_date:
-    #                 filtered_data[lines['brand']][datetime_to_month_and_year(month)] = lines[required_column]
-    #         finally:
-    #             pass
-    #     companies = []
-    #     for key, value in filtered_data.items():
-    #         company = {
-    #             'name': key,
-    #             'data': value
-    #         }
-    #         companies.append(company)
-    #
-    #     data = {
-    #         'companies': companies
-    #     }
-    #     result = BaseResponse(data=data, code=200)
     params = CompetitorAnalysisParams(
         # duration=duration,
         location=location,
