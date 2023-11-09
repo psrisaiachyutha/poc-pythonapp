@@ -48,25 +48,6 @@ def start_rabbitmq_consumer():
     channel.start_consuming()
     #return Thread(target=channel.start_consuming)
 
-def execute_basic_bigquery():
-    from google.cloud import bigquery
-
-    client = bigquery.Client()
-
-    # Perform a query.
-    QUERY = (
-        'SELECT TO_JSON_STRING(*)  FROM `bigquery-public-data.usa_names.usa_1910_2013` '
-        
-        'LIMIT 100')
-    # query_job = client.query(QUERY)  # API request
-    # client.cancel_job(query_job.job_id, location='US')
-    # print(query_job.job_id)
-    query_job = client.get_job('2b97dd4a-659a-445a-a681-e26ee81bab13', location='us')
-    rows = query_job.result()  # Waits for query to finish
-    print('printing the bigquery response', rows)
-    # for row in rows:
-    #     print(row.name)
-
 
 def create_bigquery():
     from google.cloud import bigquery

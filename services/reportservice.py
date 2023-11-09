@@ -6,6 +6,8 @@ from datetime import datetime
 from pika.exceptions import AMQPConnectionError
 
 from models.schemas.competitoranalysis import CompetitorAnalysisParams
+from utils.constants import REPORTS_META_DATA_TABLE_NAME
+from utils.enums import ReportType
 from utils.rabbitmq import create_rabbitmq_connection, create_channel, publish_message_to_rabbitmq, close_connection
 
 
@@ -93,9 +95,19 @@ def get_aggregate_handler(input1: CompetitorAnalysisParams):
 
 
 def generate_report_handler(input1: dict):
-    # TODO add message to rabbitmq
-    json_message = str(input1)
+    response_message = {
+        "message": "accepted request for report generation"
+    }
+
+    # TODO: run db query to check data is already available
+    # if True:
+    #     return response_message
+
+
+
     json_message = json.dumps(input1)
+
+
 
     try:
         connection = create_rabbitmq_connection('localhost')
@@ -110,7 +122,31 @@ def generate_report_handler(input1: dict):
             "message": "rabbitmq connection error"
         }
 
-    return {
-        "message": "accepted request for report generation"
-    }
+    return response_message
+
+def generate_report_meta_data_query(params: dict):
+    competitor = ''.join(params['competitor'].sorted())
+    location = ''.join(params['location'].sorted())
+    demographic = ''.join(params['demographic'].sorted())
+    company = params['brand']
+    duration = params['duration']
+
+    query = """
+        SELECT MAX(ID), TTL FROM ?
+        WHERE
+            ENUM = ? AND
+            COMPANY = ? AND
+            COMPETITOR = ? AND
+            LOCATION = ? AND
+            DURATION = ? AND
+            DEMOGRAPHIC = ? 
+        GROUP BY TTL    ;
+    """
+    required_sql_params = (REPORTS_META_DATA_TABLE_NAME,
+                           ReportType.CROSS_VISIT,
+                           company,
+                           competitor,
+                           location,
+                           duration,
+                           demographic)
 
